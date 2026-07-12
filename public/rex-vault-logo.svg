@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+  <!-- REX Vaultm¹bÝi“ + Æ¿ -->
+  <path
+    d="M50 8 L84 27.5 V66.5 L50 86 L16 66.5 V27.5 Z"
+    stroke="#000"
+    stroke-width="4"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M50 24 L68 34.5 V55.5 L50 66 L32 55.5 V34.5 Z"
+    stroke="#000"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+    opacity="0.55"
+  />
+  <circle cx="50" cy="45" r="6" fill="#000" />
+  <path
+    d="M38 58 H62"
+    stroke="#000"
+    stroke-width="3"
+    stroke-linecap="round"
+  />
+</svg>

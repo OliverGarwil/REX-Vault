@@ -37,11 +37,11 @@ export function App() {
         <header className="topbar">
           <div className="brand" onClick={() => setView({ kind: 'wall' })} role="button" tabIndex={0}>
             <div className="brand-mark">
-              <img src="/rialo-mark.svg" alt="Rialo" />
+              <img src="/rex-vault-logo.svg" alt="REX Vault" />
             </div>
             <div className="brand-text">
               <b>REX Vault</b>
-              <span>Rialo · 环境触发盲盒</span>
+              <span>环境触发盲盒</span>
             </div>
           </div>
           <div className="topbar-right">
