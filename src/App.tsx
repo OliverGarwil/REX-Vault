@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { StoreProvider } from './store';
 import { PageShell } from './components/PageShell';
+import { Footer } from './components/Footer';
 
 const VaultWall = lazy(() => import('./pages/VaultWall').then(m => ({ default: m.VaultWall })));
 const CreateVault = lazy(() => import('./pages/CreateVault').then(m => ({ default: m.CreateVault })));
@@ -76,6 +77,8 @@ export function App() {
             </PageShell>
           )}
         </Suspense>
+
+        <Footer />
       </div>
     </StoreProvider>
   );

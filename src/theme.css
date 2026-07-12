@@ -1554,3 +1554,108 @@ input, select {
   .live-metrics { grid-template-columns: repeat(2, 1fr); }
   .live-cond-row { grid-template-columns: 1fr; gap: 4px; }
 }
+
+/* 全站页脚 */
+.site-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  background: var(--beige-light);
+}
+
+.footer-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 32px 36px;
+  text-align: center;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.footer-logo {
+  width: 28px;
+  height: 28px;
+}
+
+.footer-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.footer-tagline {
+  font-size: 12px;
+  color: var(--tx-3);
+  margin-top: 2px;
+}
+
+.footer-badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.footer-badge {
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--beige);
+  border: 1px solid var(--border);
+  color: var(--tx-2);
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.footer-links a {
+  color: var(--tx-2);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-links a:hover {
+  color: var(--tx-1);
+  text-decoration: underline;
+}
+
+.footer-dot {
+  color: var(--tx-4);
+}
+
+.footer-version {
+  color: var(--tx-3);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.footer-note {
+  font-size: 11px;
+  color: var(--tx-3);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.footer-copy {
+  font-size: 11px;
+  color: var(--tx-4);
+}
+
+@media (max-width: 768px) {
+  .footer-inner { padding: 28px 16px 32px; }
+}
