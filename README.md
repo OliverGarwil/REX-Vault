@@ -4,6 +4,8 @@ An encrypted blind-box demo on [Rialo](https://rialo.io), triggered by real-worl
 
 > Frontend demo only: signals and execution are simulated locally to showcase the full Rialo Native HTTP → Reactive → REX pipeline.
 
+**v0.1.1** — REX Vault logo、Open-Meteo 实时信号、中文界面、localStorage 持久化。
+
 ## Features
 
 - **Six vault templates** — urban air, extreme heat, coastal weather, and more, each with default conditions and recommended cities
