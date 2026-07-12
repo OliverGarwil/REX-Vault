@@ -1,5 +1,8 @@
 import { useStore } from '../store';
 import { VAULT_TYPES } from '../templates';
+import { useLiveSignal } from '../hooks/useLiveSignal';
+import { LiveSignalPanel } from '../components/LiveSignalPanel';
+import { ArtifactPreview } from '../components/ArtifactPreview';
 
 interface Props {
   onOpen: (id: string) => void;
@@ -13,23 +16,48 @@ const STATUS_LABEL: Record<string, string> = {
   minted: '已铸造',
 };
 
+const STATUS_CLASS: Record<string, string> = {
+  sealed: 'status-sealed',
+  triggered: 'status-triggered',
+  opened: 'status-opened',
+  minted: 'status-minted',
+};
+
+const DEMO_CITY = 'Shanghai';
+
 export function VaultWall({ onOpen, onCreate }: Props) {
   const { vaults } = useStore();
+  const live = useLiveSignal(DEMO_CITY, 30_000);
 
   return (
     <main className="page page-wide">
       <section className="hero">
+        <span className="hero-badge">Rialo Demo</span>
         <h1 className="hero-title">REX Vault</h1>
         <p className="hero-lead">
-          用真实环境数据触发链上盲盒。条件写在 Rialo 上，数据走 Native HTTP 进来，
+          用<strong>真实环境数据</strong>触发链上盲盒。条件写在 Rialo 上，数据走 Native HTTP 进来，
           Reactive 负责唤醒，REX 里跑规则和稀有度，外面只能看到开盒结果。
         </p>
         <div className="hero-actions">
           <button type="button" className="btn primary" onClick={onCreate}>创建盲盒</button>
           {vaults.length > 0 && (
-            <button type="button" className="btn ghost" onClick={() => onOpen(vaults[0].id)}>看 Demo</button>
+            <button type="button" className="btn ghost" onClick={() => onOpen(vaults[0].id)}>查看最近</button>
           )}
         </div>
+      </section>
+
+      <section className="section">
+        <LiveSignalPanel
+          city={DEMO_CITY}
+          signal={live.signal}
+          history={live.history}
+          loading={live.loading}
+          error={live.error}
+          lastUpdated={live.lastUpdated}
+          pollSec={30}
+          onRefresh={live.refresh}
+          compact
+        />
       </section>
 
       <section className="section">
@@ -58,7 +86,7 @@ export function VaultWall({ onOpen, onCreate }: Props) {
             <div className="principle-arrow">→</div>
             <div className="principle-node">
               <h4>4. 开盒</h4>
-              <p>生成作品</p>
+              <p>生成 Artifact</p>
             </div>
           </div>
           <div className="principle-note">
@@ -69,69 +97,44 @@ export function VaultWall({ onOpen, onCreate }: Props) {
 
       <section className="section">
         <div className="section-head">
-          <div className="section-title">Rialo 这边用到的能力</div>
+          <div className="section-title">Rialo 能力</div>
         </div>
         <div className="platform-grid">
           <div className="platform-item">
             <span className="platform-num">01</span>
             <h4>Reactive</h4>
-            <p>条件满足就执行，不用链外脚本轮询再签名。</p>
+            <p>条件满足自动执行，无需链下轮询或签名 Bot。</p>
           </div>
           <div className="platform-item">
             <span className="platform-num">02</span>
             <h4>Native HTTP</h4>
-            <p>合约侧直接请求 OpenAQ、NOAA 这类 API，少一层预言机。</p>
+            <p>合约直接调 OpenAQ、NOAA 等 API，减少 Oracle 层。</p>
           </div>
           <div className="platform-item">
             <span className="platform-num">03</span>
             <h4>REX</h4>
-            <p>你的阈值和稀有度算法别人看不到，只能看到开出来的东西。</p>
+            <p>阈值和规则加密上链，外人只能看到开箱结果。</p>
           </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="section-title">流程</div>
-        <div className="flow-steps">
-          <div className="flow-step">
-            <div className="step-num">1</div>
-            <h4>选类型</h4>
-            <p>六种模板，自带默认条件</p>
-          </div>
-          <div className="flow-step">
-            <div className="step-num">2</div>
-            <h4>改规则</h4>
-            <p>城市、AND/OR、加减条件</p>
-          </div>
-          <div className="flow-step">
-            <div className="step-num">3</div>
-            <h4>封存</h4>
-            <p>写入 REX</p>
-          </div>
-          <div className="flow-step">
-            <div className="step-num">4</div>
-            <h4>试触发</h4>
-            <p>详情页点模拟信号</p>
-          </div>
-        </div>
-        <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <button type="button" className="btn primary" onClick={onCreate}>新建盲盒</button>
         </div>
       </section>
 
       <section className="section section-last">
         <div className="page-header" style={{ marginBottom: 20 }}>
           <div>
-            <div className="h-title">我的盲盒</div>
-            <div className="h-sub">{vaults.length} 个</div>
+            <div className="h-title">我的 Vault</div>
+            <div className="h-sub">共 {vaults.length} 个 · 数据保存在本地</div>
           </div>
           <button type="button" className="btn primary" onClick={onCreate}>新建</button>
         </div>
 
         {vaults.length === 0 ? (
           <div className="empty-state">
-            <div>还没有</div>
-            <p>建一个之后会出现在这里</p>
+            <div className="empty-state-icon">⬡</div>
+            <div>还没有 Vault</div>
+            <p>创建一个，实时环境数据满足条件时自动开箱</p>
+            <button type="button" className="btn primary" style={{ marginTop: 20 }} onClick={onCreate}>
+              创建第一个
+            </button>
           </div>
         ) : (
           <div className="vault-grid">
@@ -139,15 +142,21 @@ export function VaultWall({ onOpen, onCreate }: Props) {
               const t = VAULT_TYPES[v.theme];
               return (
                 <div key={v.id} className="vault-card" onClick={() => onOpen(v.id)}>
-                  <div className={`vault-preview ${v.status === 'opened' ? 'vault-preview-dark' : ''}`}>
-                    <span className="vault-preview-symbol">⬡</span>
+                  <div className={`vault-preview ${v.status === 'opened' ? 'vault-preview-opened' : ''}`}>
+                    {v.artifact ? (
+                      <ArtifactPreview artifact={v.artifact} size="sm" showLabel={false} />
+                    ) : (
+                      <span className="vault-preview-symbol">⬡</span>
+                    )}
                   </div>
                   <div className="vault-card-body">
                     <span className="type-category" style={{ marginBottom: 6, display: 'inline-block' }}>{t.category}</span>
                     <h3>{v.name}</h3>
-                    <div className="meta">{t.name} · {v.city} · {v.conditions.length} 条</div>
+                    <div className="meta">{t.name} · {v.city} · {v.conditions.length} 条规则</div>
                     <div className="tags">
-                      <span className="tag">{STATUS_LABEL[v.status] ?? v.status}</span>
+                      <span className={`tag ${STATUS_CLASS[v.status] ?? ''}`}>
+                        {STATUS_LABEL[v.status] ?? v.status}
+                      </span>
                     </div>
                   </div>
                 </div>

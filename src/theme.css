@@ -1,5 +1,5 @@
 :root {
-  /* 米色底 + 黑字，跟 Rialo logo 对齐 */
+  /* Beige background + black text, aligned with Rialo logo */
   --beige: #ebe6d9;
   --beige-light: #f4f1ea;
   --beige-dark: #ddd7c8;
@@ -70,6 +70,53 @@ input, select {
   display: flex;
   align-items: center;
   gap: 14px;
+  cursor: pointer;
+}
+
+.topbar-crumb {
+  font-size: 12px;
+  color: var(--tx-3);
+  margin-right: 4px;
+}
+
+.tag-live .dot-pulse {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.page-shell {
+  animation: page-in 0.28s ease-out;
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 24px;
+  color: var(--tx-3);
+}
+
+.page-loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border);
+  border-top-color: var(--tx-1);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .brand-mark {
@@ -211,7 +258,7 @@ input, select {
   text-transform: uppercase;
 }
 
-/* Rialo 技术卡片 */
+/* Rialo tech cards */
 .rialo-tech-grid {
   display: flex;
   flex-direction: column;
@@ -297,7 +344,7 @@ input, select {
   color: var(--beige-light);
 }
 
-/* 平台原理 */
+/* How it works */
 .principle-panel { padding: 28px 24px; }
 
 .principle-flow {
@@ -360,7 +407,7 @@ input, select {
 
 .principle-note strong { color: var(--tx-1); }
 
-/* 平台功能 & 用户收益 */
+/* Platform features & benefits */
 .platform-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -421,7 +468,7 @@ input, select {
   line-height: 1.6;
 }
 
-/* 流程 */
+/* Flow steps */
 .flow-steps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -463,7 +510,7 @@ input, select {
   line-height: 1.5;
 }
 
-/* 盲盒卡片 */
+/* Vault cards */
 .vault-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -499,8 +546,195 @@ input, select {
   font-weight: 200;
 }
 
-.vault-preview-dark {
+.vault-preview-opened {
   background: linear-gradient(180deg, var(--beige-dark) 0%, var(--beige-muted) 100%);
+  padding: 16px;
+}
+
+.vault-preview-opened .artifact-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.empty-state-icon {
+  font-size: 36px;
+  opacity: 0.25;
+  margin-bottom: 12px;
+}
+
+.status-sealed { background: var(--beige); }
+.status-triggered { background: #f5f0e6; border-color: rgba(0,0,0,0.15); }
+.status-opened { background: var(--tx-1); color: var(--beige-light); border-color: var(--tx-1); }
+.status-minted { background: var(--beige-dark); }
+
+.page-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-danger-ghost {
+  color: #8a3030;
+  border-color: rgba(138, 48, 48, 0.25);
+}
+
+.btn-danger-ghost:hover {
+  background: rgba(138, 48, 48, 0.06);
+  border-color: #8a3030;
+}
+
+.btn-block { width: 100%; }
+
+.form-panel { padding: 24px; }
+
+.inner-panel { padding: 14px; margin-bottom: 16px; }
+
+.subtle-label {
+  font-size: 11px;
+  color: var(--tx-3);
+  margin-bottom: 8px;
+}
+
+.rex-desc {
+  font-size: 13px;
+  color: var(--tx-2);
+  margin-bottom: 8px;
+}
+
+.vault-cube-pulse {
+  animation: cube-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes cube-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+.vault-cube-sealing {
+  font-size: 48px;
+  margin-bottom: 20px;
+  animation: cube-spin 3s linear infinite;
+}
+
+@keyframes cube-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sealing-percent {
+  font-size: 32px;
+  font-family: var(--mono);
+  margin-bottom: 8px;
+}
+
+.sealing-hint {
+  color: var(--tx-3);
+  font-size: 13px;
+}
+
+.vault-cube-detail {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
+/* Artifact 预览 */
+.artifact-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.artifact-preview-sm { width: 88px; }
+.artifact-preview-md { width: 120px; }
+.artifact-preview-lg { width: 160px; }
+
+.artifact-canvas {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.artifact-preview-sm .artifact-canvas { border-radius: 8px; }
+
+.artifact-pattern-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.artifact-pattern-wave {
+  background-image: repeating-radial-gradient(circle at 50% 120%, rgba(255,255,255,0.2) 0, transparent 18px);
+}
+
+.artifact-pattern-burst {
+  background-image: conic-gradient(from 0deg, rgba(255,255,255,0.25), transparent, rgba(255,255,255,0.15));
+}
+
+.artifact-pattern-mist {
+  background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), transparent 55%);
+}
+
+.artifact-rarity {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--beige-light);
+  border: 1px solid var(--border);
+}
+
+.artifact-rarity-legendary { background: var(--tx-1); color: var(--beige-light); border-color: var(--tx-1); }
+.artifact-rarity-epic { background: #2a2a2a; color: var(--beige-light); }
+.artifact-rarity-rare { background: var(--beige-dark); }
+
+.artifact-block-body {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.artifact-block-rarity {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.artifact-block-signal {
+  font-size: 12px;
+  color: var(--tx-3);
+  line-height: 1.5;
+}
+
+.modal-artifact {
+  margin-top: 16px;
+  text-align: center;
+}
+
+/* 骨架屏 */
+.live-metric-skeleton {
+  pointer-events: none;
+}
+
+.skeleton-line {
+  background: linear-gradient(90deg, var(--beige-dark) 25%, var(--beige-muted) 50%, var(--beige-dark) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-sm { height: 10px; width: 50%; margin-bottom: 8px; }
+.skeleton-lg { height: 22px; width: 70%; margin-bottom: 10px; }
+.skeleton-chart { height: 24px; width: 100%; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .vault-card-body { padding: 16px; }
@@ -530,7 +764,7 @@ input, select {
 
 .empty-state p { margin-top: 8px; font-size: 13px; }
 
-/* 通用 */
+/* Shared */
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -605,7 +839,7 @@ input, select {
   word-break: break-all;
 }
 
-/* 创建页 */
+/* Create page */
 .step-bar {
   display: flex;
   margin-bottom: 32px;
@@ -637,7 +871,7 @@ input, select {
   font-weight: 600;
 }
 
-/* 详情页 */
+/* Detail page */
 .detail-layout {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -673,7 +907,7 @@ input, select {
   margin-top: 10px !important;
 }
 
-/* 盲盒类型选择 */
+/* Vault type picker */
 .step-hint {
   font-size: 13px;
   color: var(--tx-3);
@@ -982,7 +1216,7 @@ input, select {
   text-transform: uppercase;
 }
 
-/* 模态 */
+/* Modal */
 .modal-mask {
   position: fixed;
   inset: 0;
@@ -1140,6 +1374,167 @@ input, select {
   transition: width 0.16s;
 }
 
+.sealing-panel .progress-fill {
+  height: 100%;
+  background: var(--tx-1);
+  transition: width 0.16s;
+}
+
+/* 实时环境信号面板 */
+.live-panel {
+  margin-bottom: 28px;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--beige-light);
+  box-shadow: var(--shadow);
+}
+
+.live-panel-compact {
+  margin-bottom: 20px;
+}
+
+.live-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.live-panel-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.live-refresh-btn {
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+.live-loading,
+.live-error {
+  font-size: 13px;
+  padding: 12px 0;
+}
+
+.live-error {
+  color: #a33;
+}
+
+.live-trigger-banner {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background: var(--beige-dark);
+  color: var(--tx-2);
+}
+
+.live-trigger-yes {
+  background: #1a1a1a;
+  color: var(--beige-light);
+}
+
+.live-metrics {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.live-metric {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--beige);
+}
+
+.live-metric-hit {
+  border-color: var(--tx-1);
+  box-shadow: inset 0 0 0 1px var(--tx-1);
+}
+
+.live-metric-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.live-metric-label {
+  font-size: 11px;
+  color: var(--tx-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.live-metric-delta {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--tx-3);
+}
+
+.live-metric-val {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--mono);
+  margin-bottom: 8px;
+}
+
+.sparkline {
+  width: 100%;
+  height: 24px;
+  stroke: var(--tx-3);
+  opacity: 0.6;
+}
+
+.sparkline line {
+  stroke: var(--border);
+}
+
+.sparkline-active {
+  stroke: var(--tx-1);
+  opacity: 1;
+}
+
+.live-conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.live-cond-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--beige);
+}
+
+.live-cond-hit {
+  background: var(--beige-dark);
+  font-weight: 600;
+}
+
+.live-cond-now {
+  font-family: var(--mono);
+  color: var(--tx-2);
+  font-size: 12px;
+}
+
+.demo-toggle {
+  margin-bottom: 8px;
+}
+
 @media (max-width: 768px) {
   .page { padding: 24px 16px 40px; }
   .hero-title { font-size: 30px; }
@@ -1155,4 +1550,6 @@ input, select {
   .benefit-grid { grid-template-columns: 1fr; }
   .principle-flow { flex-direction: column; align-items: center; }
   .principle-arrow { padding: 0; transform: rotate(90deg); }
+  .live-metrics { grid-template-columns: repeat(2, 1fr); }
+  .live-cond-row { grid-template-columns: 1fr; gap: 4px; }
 }

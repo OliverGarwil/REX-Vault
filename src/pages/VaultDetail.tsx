@@ -2,12 +2,17 @@ import { useState, useMemo } from 'react';
 import { useStore } from '../store';
 import { DEMO_SIGNALS, previewConditionHits, evaluateVault } from '../engine';
 import { VAULT_TYPES, FIELD_META, LOGIC_LABEL } from '../templates';
-import type { WorldSignal } from '../types';
+import { useLiveSignal } from '../hooks/useLiveSignal';
+import { LiveSignalPanel } from '../components/LiveSignalPanel';
+import { ArtifactPreview } from '../components/ArtifactPreview';
+import type { Vault, WorldSignal, WorldSignalSnapshot } from '../types';
 
 interface Props {
   vaultId: string;
   onBack: () => void;
 }
+
+const POLL_SEC = 30;
 
 const RARITY_LABEL: Record<string, string> = {
   common: '普通',
@@ -16,28 +21,45 @@ const RARITY_LABEL: Record<string, string> = {
   legendary: '传说',
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  sealed: '等待触发',
+  triggered: '已触发未开',
+  opened: '已开启',
+  minted: '已铸造',
+};
+
 const EXEC_STEPS = [
-  { title: '收到数据', desc: 'Native HTTP 拉 API' },
-  { title: '对条件', desc: 'Reactive 判断' },
-  { title: 'REX 计算', desc: '规则和稀有度' },
-  { title: '开盒', desc: '生成作品' },
+  { title: '信号到达', desc: 'Native HTTP 拉取 API 数据' },
+  { title: '规则匹配', desc: 'Reactive 链上评估' },
+  { title: 'REX 计算', desc: '规则与稀有度私密执行' },
+  { title: 'Vault 开启', desc: '生成 Artifact' },
 ];
 
-function formatSignalStats(s: WorldSignal): string {
-  return `AQI ${s.aqi} · PM2.5 ${s.pm25} · ${s.temp}°C · ${s.humidity}% · 风 ${s.wind} · UV ${s.uv}`;
+function formatSignalStats(s: WorldSignalSnapshot): string {
+  return `AQI ${s.aqi} · PM2.5 ${s.pm25} · ${s.temp}°C · ${s.humidity}% · 风速 ${s.wind} · UV ${s.uv}`;
+}
+
+function hitLabel(vault: Vault, signal: WorldSignal): string {
+  const hits = previewConditionHits(vault, signal);
+  const n = hits.filter(Boolean).length;
+  const total = vault.conditions.length;
+  const wouldTrigger = evaluateVault(vault, signal);
+  return wouldTrigger ? `${n}/${total} 将开箱` : `${n}/${total}`;
 }
 
 export function VaultDetail({ vaultId, onBack }: Props) {
-  const { vaults, triggerVault } = useStore();
+  const { vaults, triggerVault, deleteVault } = useStore();
   const vault = useMemo(() => vaults.find(v => v.id === vaultId), [vaults, vaultId]);
+  const live = useLiveSignal(vault?.city ?? '', POLL_SEC * 1000);
   const [execOpen, setExecOpen] = useState(false);
   const [execStep, setExecStep] = useState(0);
   const [execHit, setExecHit] = useState<boolean | null>(null);
+  const [showDemo, setShowDemo] = useState(false);
 
   if (!vault) {
     return (
       <main className="page">
-        <p>找不到这个盲盒</p>
+        <p>找不到这个 Vault</p>
         <button type="button" className="btn ghost" onClick={onBack}>返回</button>
       </main>
     );
@@ -45,7 +67,6 @@ export function VaultDetail({ vaultId, onBack }: Props) {
 
   const tpl = VAULT_TYPES[vault.theme];
   const logic = vault.conditionLogic ?? 'all';
-  const statusText = vault.status === 'sealed' ? '等待触发' : vault.status === 'opened' ? '已开' : '未命中';
 
   function runTrigger(signal: WorldSignal) {
     setExecHit(null);
@@ -66,12 +87,11 @@ export function VaultDetail({ vaultId, onBack }: Props) {
     }, acc + 400);
   }
 
-  function hitLabel(signal: WorldSignal): string {
-    const hits = previewConditionHits(vault, signal);
-    const n = hits.filter(Boolean).length;
-    const total = vault.conditions.length;
-    const wouldTrigger = evaluateVault(vault, signal);
-    return wouldTrigger ? `${n}/${total} 会开` : `${n}/${total}`;
+  function handleDelete() {
+    if (window.confirm('确定删除这个 Vault？此操作不可恢复。')) {
+      deleteVault(vaultId);
+      onBack();
+    }
   }
 
   return (
@@ -80,33 +100,53 @@ export function VaultDetail({ vaultId, onBack }: Props) {
         <div>
           <div className="h-title">{vault.name}</div>
           <div className="h-sub">
-            {tpl.name} · {vault.city} · {statusText}
+            {tpl.name} · {vault.city} · {STATUS_LABEL[vault.status] ?? vault.status}
           </div>
         </div>
-        <button type="button" className="btn ghost" onClick={onBack}>返回</button>
+        <div className="page-header-actions">
+          <button type="button" className="btn ghost btn-danger-ghost" onClick={handleDelete}>删除</button>
+          <button type="button" className="btn ghost" onClick={onBack}>返回</button>
+        </div>
       </div>
+
+      <LiveSignalPanel
+        vault={vault}
+        city={vault.city}
+        signal={live.signal}
+        history={live.history}
+        loading={live.loading}
+        error={live.error}
+        lastUpdated={live.lastUpdated}
+        pollSec={POLL_SEC}
+        onRefresh={live.refresh}
+        onTrigger={runTrigger}
+      />
 
       <div className="detail-layout">
         <div className="panel vault-cube-wrap">
-          <div className="vault-cube">⬡</div>
+          {vault.artifact ? (
+            <ArtifactPreview artifact={vault.artifact} size="lg" />
+          ) : (
+            <div className="vault-cube vault-cube-detail">⬡</div>
+          )}
           <div className="vault-type-info">
             <span className="type-category">{tpl.category}</span>
             <p>{tpl.desc}</p>
-            <p className="type-datasource">{tpl.dataSource}</p>
+            <p className="type-datasource">数据源：{tpl.dataSource}</p>
           </div>
         </div>
 
         <div className="side-panel">
           <div className="rex-box">
             <div className="rex-label">已加密</div>
-            <div style={{ fontSize: 13, color: 'var(--tx-2)', marginBottom: 8 }}>
-              {vault.conditions.length} 条 · {LOGIC_LABEL[logic]}
+            <div className="rex-desc">
+              {vault.conditions.length} 条规则 · {LOGIC_LABEL[logic]}
             </div>
             <div className="hash">{vault.encryptionHash}</div>
           </div>
 
           <div className="panel info-block">
-            <div className="label">条件</div>
+            <div className="label">触发条件</div>
             <p className="field-hint" style={{ marginBottom: 10 }}>{LOGIC_LABEL[logic]}</p>
             {vault.conditions.map((c, i) => (
               <div key={i} className="condition-line">
@@ -117,37 +157,51 @@ export function VaultDetail({ vaultId, onBack }: Props) {
           </div>
 
           {vault.artifact && (
-            <div className="panel info-block">
-              <div className="label">作品</div>
-              <div className="value">
-                {RARITY_LABEL[vault.artifact.rarity] ?? vault.artifact.rarity}
-                <br />
-                {formatSignalStats(vault.artifact.triggeredSignal)}
+            <div className="panel info-block artifact-block">
+              <div className="label">Artifact</div>
+              <div className="artifact-block-body">
+                <ArtifactPreview artifact={vault.artifact} size="md" />
+                <div>
+                  <div className="artifact-block-rarity">
+                    {RARITY_LABEL[vault.artifact.rarity] ?? vault.artifact.rarity}
+                  </div>
+                  <div className="artifact-block-signal">{formatSignalStats(vault.artifact.triggeredSignal)}</div>
+                </div>
               </div>
             </div>
           )}
 
           <div className="panel info-block">
-            <div className="label">模拟信号</div>
-            <p className="field-hint" style={{ marginBottom: 12 }}>
-              点一行试触发
-            </p>
-            {DEMO_SIGNALS.map(s => {
-              const wouldHit = evaluateVault(vault, s.signal);
-              return (
-                <div
-                  key={s.label}
-                  className={`signal-row ${wouldHit ? 'signal-row-hit' : ''}`}
-                  onClick={() => runTrigger(s.signal)}
-                >
-                  <div>
-                    <div>{s.label}</div>
-                    <div className="signal-detail">{formatSignalStats(s.signal)}</div>
-                  </div>
-                  <span className={`hit-badge ${wouldHit ? 'hit-yes' : ''}`}>{hitLabel(s.signal)}</span>
-                </div>
-              );
-            })}
+            <button
+              type="button"
+              className="btn-text demo-toggle"
+              onClick={() => setShowDemo(v => !v)}
+            >
+              {showDemo ? '收起' : '展开'} Demo 场景
+            </button>
+            {showDemo && (
+              <>
+                <p className="field-hint" style={{ marginBottom: 12 }}>
+                  预设信号，快速测试执行流程
+                </p>
+                {DEMO_SIGNALS.map(s => {
+                  const wouldHit = evaluateVault(vault, s.signal);
+                  return (
+                    <div
+                      key={s.label}
+                      className={`signal-row ${wouldHit ? 'signal-row-hit' : ''}`}
+                      onClick={() => runTrigger(s.signal)}
+                    >
+                      <div>
+                        <div>{s.label}</div>
+                        <div className="signal-detail">{formatSignalStats(s.signal)}</div>
+                      </div>
+                      <span className={`hit-badge ${wouldHit ? 'hit-yes' : ''}`}>{hitLabel(vault, s.signal)}</span>
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -158,8 +212,8 @@ export function VaultDetail({ vaultId, onBack }: Props) {
             <div className="modal-head">
               <h2>
                 {execStep >= 5
-                  ? execHit ? '开了' : '没开'
-                  : '执行中'}
+                  ? execHit ? 'Vault 已开启' : '条件未满足'
+                  : '执行中…'}
               </h2>
             </div>
 
@@ -178,8 +232,9 @@ export function VaultDetail({ vaultId, onBack }: Props) {
             })}
 
             {execStep >= 5 && execHit && vault.artifact && (
-              <div className="rex-box" style={{ marginTop: 16, textAlign: 'center' }}>
-                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>生成作品</div>
+              <div className="rex-box modal-artifact">
+                <ArtifactPreview artifact={vault.artifact} size="md" />
+                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 12 }}>Artifact 已生成</div>
                 <div style={{ fontSize: 13, color: 'var(--tx-2)' }}>
                   {RARITY_LABEL[vault.artifact.rarity]} · {vault.artifact.triggeredSignal.city}
                 </div>
@@ -189,8 +244,8 @@ export function VaultDetail({ vaultId, onBack }: Props) {
             {execStep >= 5 && (
               <button
                 type="button"
-                className="btn primary"
-                style={{ width: '100%', marginTop: 20 }}
+                className="btn primary btn-block"
+                style={{ marginTop: 20 }}
                 onClick={() => setExecOpen(false)}
               >
                 关闭

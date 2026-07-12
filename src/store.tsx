@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Vault, Artifact, WorldSignal, VaultCondition, VaultTheme, ConditionLogic } from './types';
 import { createVault, evaluateVault, generateArtifact, DEMO_SIGNALS } from './engine';
+import { loadVaults, saveVaults } from './lib/storage';
 
 interface Store {
   vaults: Vault[];
@@ -12,17 +13,22 @@ interface Store {
     conditionLogic: ConditionLogic,
   ) => string;
   triggerVault: (vaultId: string, signal: WorldSignal) => { hit: boolean; artifact?: Artifact };
+  deleteVault: (vaultId: string) => void;
   getDemoSignals: () => typeof DEMO_SIGNALS;
 }
 
 const Ctx = createContext<Store | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [vaults, setVaults] = useState<Vault[]>([]);
+  const [vaults, setVaults] = useState<Vault[]>(() => loadVaults());
+
+  useEffect(() => {
+    saveVaults(vaults);
+  }, [vaults]);
 
   const createVaultFn: Store['createVault'] = (name, theme, city, conditions, conditionLogic) => {
     const vault = createVault(name, theme, city, conditions, conditionLogic);
-    setVaults(prev => [...prev, vault]);
+    setVaults(prev => [vault, ...prev]);
     return vault.id;
   };
 
@@ -44,11 +50,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return result;
   };
 
-  return (
-    <Ctx.Provider value={{ vaults, createVault: createVaultFn, triggerVault, getDemoSignals: () => DEMO_SIGNALS }}>
-      {children}
-    </Ctx.Provider>
-  );
+  const deleteVault = (vaultId: string) => {
+    setVaults(prev => prev.filter(v => v.id !== vaultId));
+  };
+
+  const value = useMemo<Store>(() => ({
+    vaults,
+    createVault: createVaultFn,
+    triggerVault,
+    deleteVault,
+    getDemoSignals: () => DEMO_SIGNALS,
+  }), [vaults]);
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 export function useStore() {

@@ -3,44 +3,44 @@ import { VAULT_TYPES } from './templates';
 
 export const DEMO_SIGNALS: { label: string; signal: WorldSignal }[] = [
   {
-    label: '上海 · 闷热污染',
+    label: 'Shanghai · hot smog',
     signal: {
-      city: '上海', aqi: 142, pm25: 88, temp: 33, humidity: 78, wind: 12, uv: 7,
+      city: 'Shanghai', aqi: 142, pm25: 88, temp: 33, humidity: 78, wind: 12, uv: 7,
       timestamp: Date.now(), source: 'openaq.org/api/v3',
     },
   },
   {
-    label: '东京 · 凉快',
+    label: 'Tokyo · cool clear',
     signal: {
-      city: '东京', aqi: 28, pm25: 18, temp: 19, humidity: 55, wind: 8, uv: 4,
+      city: 'Tokyo', aqi: 28, pm25: 18, temp: 19, humidity: 55, wind: 8, uv: 4,
       timestamp: Date.now(), source: 'openaq.org/api/v3',
     },
   },
   {
-    label: '香港 · 潮湿',
+    label: 'Hong Kong · humid',
     signal: {
-      city: '香港', aqi: 65, pm25: 42, temp: 19, humidity: 92, wind: 10, uv: 3,
+      city: 'Hong Kong', aqi: 65, pm25: 42, temp: 19, humidity: 92, wind: 10, uv: 3,
       timestamp: Date.now(), source: 'noaa.gov/tides',
     },
   },
   {
-    label: '迪拜 · 干热',
+    label: 'Dubai · dry heat',
     signal: {
-      city: '迪拜', aqi: 88, pm25: 55, temp: 41, humidity: 24, wind: 18, uv: 11,
+      city: 'Dubai', aqi: 88, pm25: 55, temp: 41, humidity: 24, wind: 18, uv: 11,
       timestamp: Date.now(), source: 'noaa.gov/heat',
     },
   },
   {
-    label: '旧金山 · 沿海',
+    label: 'San Francisco · coastal',
     signal: {
-      city: '旧金山', aqi: 32, pm25: 15, temp: 16, humidity: 88, wind: 14, uv: 5,
+      city: 'San Francisco', aqi: 32, pm25: 15, temp: 16, humidity: 88, wind: 14, uv: 5,
       timestamp: Date.now(), source: 'noaa.gov/coastal',
     },
   },
   {
-    label: '孟买 · 极端',
+    label: 'Mumbai · extreme',
     signal: {
-      city: '孟买', aqi: 168, pm25: 95, temp: 36, humidity: 70, wind: 72, uv: 9,
+      city: 'Mumbai', aqi: 168, pm25: 95, temp: 36, humidity: 70, wind: 72, uv: 9,
       timestamp: Date.now(), source: 'extreme-events.net',
     },
   },
